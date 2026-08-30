@@ -84,9 +84,16 @@ function applyOps(
 
 app.prepare().then(() => {
   const httpServer = createServer((req, res) => handle(req, res));
-  const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
-    path: "/socket.io"
-  });
+ const io = new Server<ClientToServerEvents, ServerToClientEvents>(
+  httpServer,
+  {
+    path: "/socket.io",
+    cors: {
+      origin: process.env.FRONTEND_URL,
+      methods: ["GET", "POST"],
+    },
+  }
+);
 
   io.on("connection", (socket) => {
     socket.on("room:join", ({ room, name }) => {
@@ -230,7 +237,9 @@ app.prepare().then(() => {
     });
   });
 
-  httpServer.listen(port, () => {
-    console.log(`> AI Collaborative Workspace ready on http://localhost:${port}`);
-  });
+  const host = "0.0.0.0";
+
+httpServer.listen(port, host, () => {
+  console.log(`> AI Collaborative Workspace ready on port ${port}`);
+});
 });
